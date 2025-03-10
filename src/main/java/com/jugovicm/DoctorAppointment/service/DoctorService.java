@@ -1,5 +1,6 @@
 package com.jugovicm.DoctorAppointment.service;
 import com.jugovicm.DoctorAppointment.dto.DoctorDTO;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,11 @@ public interface DoctorService {
      * @param id UUID of the doctor to delete.
      */
     void deleteDoctor(UUID id);
+
+    @Transactional
+    DoctorDTO updateDoctor(UUID id, DoctorDTO doctorDTO);
+
+    List<DoctorDTO> searchDoctors(String query);
 }
 
 

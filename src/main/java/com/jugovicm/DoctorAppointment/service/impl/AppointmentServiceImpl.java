@@ -151,4 +151,48 @@ public class AppointmentServiceImpl implements AppointmentService {
         return dto;
     }
 
+    @Transactional
+    @Override
+    public void deleteAppointment(UUID appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment with ID " + appointmentId + " not found"));
+
+        // Uklanjamo doktore iz termina pre brisanja kako bismo izbegli referencijalne probleme
+        appointment.getDoctors().forEach(doctor -> doctor.getAppointments().remove(appointment));
+
+        // Brišemo termin iz baze
+        appointmentRepository.delete(appointment);
+        log.info("Appointment with ID {} deleted successfully.", appointmentId);
+    }
+
+    @Transactional
+    @Override
+    public AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment with ID " + appointmentId + " not found"));
+
+        // Ažuriranje podataka
+        appointment.setAppointmentTime(dto.getAppointmentTime());
+        appointment.setStatus(dto.getStatus());
+
+        // Postavljamo novog pacijenta ako je promenjen
+        Patient patient = patientRepository.findById(dto.getPatientId())
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+        appointment.setPatient(patient);
+
+        // Postavljamo nove doktore ako su promenjeni
+        List<Doctor> doctors = doctorRepository.findAllById(dto.getDoctorIds());
+        if (doctors.isEmpty() || doctors.size() != dto.getDoctorIds().size()) {
+            throw new EntityNotFoundException("One or more doctors not found.");
+        }
+        appointment.setDoctors(doctors);
+
+        Appointment updatedAppointment = appointmentRepository.save(appointment);
+        log.info("Appointment with ID {} updated successfully.", appointmentId);
+
+        return mapToResponseDTO(updatedAppointment);
+    }
+
+
+
 }

@@ -112,4 +112,21 @@ public class PatientServiceImpl implements PatientService {
         dto.setDateOfBirth(patient.getDateOfBirth());
         return dto;
     }
+
+    @Transactional
+    @Override
+    public PatientDTO updatePatient(UUID id, PatientDTO patientDTO) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found with ID: " + id));
+
+        patient.setFirstName(patientDTO.getFirstName());
+        patient.setLastName(patientDTO.getLastName());
+        patient.setMiddleName(patientDTO.getMiddleName());
+        patient.setDateOfBirth(patientDTO.getDateOfBirth());
+
+        Patient updatedPatient = patientRepository.save(patient);
+        log.info("Patient updated successfully with ID: {}", updatedPatient.getId());
+
+        return mapToDTO(updatedPatient);
+    }
 }

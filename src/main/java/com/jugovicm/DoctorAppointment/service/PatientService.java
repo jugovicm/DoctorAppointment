@@ -45,4 +45,13 @@ public interface PatientService {
      * @return A list of matching patients as DTOs.
      */
     List<PatientDTO> searchPatients(String searchTerm);
+
+    /**
+     * Update patient.
+     *
+     * @param patientDTO DTO containing updated patient details.
+     * @param id UUID of the patient to delete.
+     * @return The updated patient as a DTO.
+     */
+    PatientDTO updatePatient(UUID id, PatientDTO patientDTO);
 }

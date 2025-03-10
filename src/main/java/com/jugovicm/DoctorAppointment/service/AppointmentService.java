@@ -55,5 +55,20 @@ public interface AppointmentService {
      * @return The updated appointment as a DTO.
      */
     AppointmentResponseDTO cancelAppointment(UUID appointmentId);
+    /**
+     * Delete an appointment.
+     *
+     * @param appointmentId UUID of the appointment to delete.
+     */
+    void deleteAppointment(UUID appointmentId);
+    /**
+     * Update an appointment.
+     *
+     * @param appointmentId UUID of the appointment to cancel.
+     * @param dto DTO containing appointment details.                    
+     * @return The updated appointment as a DTO.
+     */
+    AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto);
+
 
 }

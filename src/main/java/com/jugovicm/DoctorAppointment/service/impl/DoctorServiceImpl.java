@@ -1,7 +1,6 @@
 package com.jugovicm.DoctorAppointment.service.impl;
 
 import com.jugovicm.DoctorAppointment.dto.DoctorDTO;
-import com.jugovicm.DoctorAppointment.model.Appointment;
 import com.jugovicm.DoctorAppointment.model.Doctor;
 import com.jugovicm.DoctorAppointment.repository.DoctorRepository;
 import com.jugovicm.DoctorAppointment.service.DoctorService;
@@ -80,16 +79,20 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     /*
-    // Delete doctor from all appointments
+    // Delete all doctor's appointments, and after that delete doctor
+    @Transactional
+    @Override
     public void deleteDoctor(UUID id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + id));
+            .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + id));
 
-        // Uklanjanje doktora iz svih termina pre brisanja
-        for (Appointment appointment : doctor.getAppointments()) {
-            appointment.getDoctors().remove(doctor);
+        // Proveravamo da li doktor ima zakazane termine
+        if (!doctor.getAppointments().isEmpty()) {
+        // Brisanje svih sastanaka u kojima učestvuje doktor
+            appointmentRepository.deleteAll(doctor.getAppointments());
         }
 
+        // Nakon što su svi termini obrisani, brišemo doktora
         doctorRepository.delete(doctor);
         log.info("Doctor deleted successfully with ID: {}", id);
     }
@@ -102,4 +105,28 @@ public class DoctorServiceImpl implements DoctorService {
         dto.setLastName(doctor.getLastName());
         return dto;
     }
+
+    @Transactional
+    @Override
+    public DoctorDTO updateDoctor(UUID id, DoctorDTO doctorDTO) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + id));
+
+        doctor.setFirstName(doctorDTO.getFirstName());
+        doctor.setLastName(doctorDTO.getLastName());
+        doctor.setUsername(doctorDTO.getUsername());
+
+        Doctor updatedDoctor = doctorRepository.save(doctor);
+        log.info("Doctor updated successfully with ID: {}", updatedDoctor.getId());
+
+        return mapToDTO(updatedDoctor);
+    }
+
+    @Override
+    public List<DoctorDTO> searchDoctors(String searchTerm) {
+        List<Doctor> doctors = doctorRepository.searchDoctors(searchTerm);
+        return doctors.stream().map(this::mapToDTO).collect(Collectors.toList());
+    }
+
+
 }

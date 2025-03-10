@@ -155,4 +155,64 @@ public class AppointmentController {
 
         return ResponseEntity.ok(appointments);
     }
+
+    /**
+     * Delete an appointment
+     */
+    @Operation(summary = "Delete an appointment",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Appointment deleted successfully."),
+                    @ApiResponse(responseCode = "403", description = "User not authorized to delete this appointment."),
+                    @ApiResponse(responseCode = "404", description = "Appointment not found.")
+            })
+    @DeleteMapping("/{appointmentId}")
+    public ResponseEntity<Object> deleteAppointment(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @PathVariable UUID appointmentId) {
+
+        AppointmentResponseDTO appointment = appointmentService.getAppointment(appointmentId);
+
+        // Proveri da li je doktor koji pokušava da obriše termin deo ovog termina
+        boolean isAuthorized = appointment.getDoctors().stream()
+                .anyMatch(doctor -> doctor.getUsername().equals(username));
+
+        if (!isAuthorized) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "You are not authorized to delete this appointment."));
+        }
+
+        appointmentService.deleteAppointment(appointmentId);
+        return ResponseEntity.ok(Map.of("message", "Appointment deleted successfully."));
+    }
+
+    /**
+     * Update an appointment
+     */
+    @Operation(summary = "Update an appointment",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Appointment updated successfully."),
+                    @ApiResponse(responseCode = "403", description = "User not authorized to update this appointment."),
+                    @ApiResponse(responseCode = "404", description = "Appointment not found.")
+            })
+    @PutMapping("/{appointmentId}")
+    public ResponseEntity<Object> updateAppointment(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @PathVariable UUID appointmentId,
+            @Valid @RequestBody AppointmentRequestDTO dto) {
+
+        AppointmentResponseDTO appointment = appointmentService.getAppointment(appointmentId);
+
+        // Proveri da li je doktor koji pokušava da ažurira termin deo ovog termina
+        boolean isAuthorized = appointment.getDoctors().stream()
+                .anyMatch(doctor -> doctor.getUsername().equals(username));
+
+        if (!isAuthorized) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "You are not authorized to update this appointment."));
+        }
+
+        AppointmentResponseDTO updatedAppointment = appointmentService.updateAppointment(appointmentId, dto);
+        return ResponseEntity.ok(updatedAppointment);
+    }
+
 }

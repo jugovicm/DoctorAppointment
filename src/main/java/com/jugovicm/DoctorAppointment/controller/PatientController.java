@@ -52,6 +52,7 @@ public class PatientController {
         patientService.deletePatient(id);
         return ResponseEntity.ok(Map.of("message", "Patient deleted successfully"));
     }
+
     @PostMapping("/search")
     public ResponseEntity<Object> searchPatients(
             @RequestHeader(value = "X-Username", required = true) String username,
@@ -67,4 +68,30 @@ public class PatientController {
 
         return ResponseEntity.ok(patients);
     }
+
+    @Operation(summary = "Update patient information",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Patient updated successfully."),
+                    @ApiResponse(responseCode = "404", description = "Patient not found.")
+            })
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientDTO> updatePatient(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @PathVariable UUID id,
+            @Valid @RequestBody PatientDTO patientDTO) {
+        PatientDTO updatedPatient = patientService.updatePatient(id, patientDTO);
+        return ResponseEntity.ok(updatedPatient);
+    }
+
+    @Operation(summary = "Get all patients",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Returns a list of all patients.")
+            })
+    @GetMapping
+    public ResponseEntity<List<PatientDTO>> getAllPatients(
+            @RequestHeader(value = "X-Username", required = true) String username) {
+        return ResponseEntity.ok(patientService.getAllPatients());
+    }
+
+
 }
