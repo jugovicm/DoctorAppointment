@@ -33,7 +33,7 @@ This project follows **RESTful principles**, ensuring proper HTTP response codes
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/yourusername/doctor-appointment-api.git
+git clone https://github.com/jugovicm/DoctorAppointment.git)
 cd doctor-appointment-api
 
 ### 2️⃣ Set Up PostgreSQL Database
@@ -56,9 +56,9 @@ mvn spring-boot:run
 The API will be available at:
 http://localhost:8080
 
-4️⃣ Swagger API Documentation
+4️⃣ ## 📌 API Examples
 
-Once the server is running, API documentation is available at: http://localhost:8080/swagger-ui.html
+For detailed API request examples, see API Examples.
 
 🔐 Authentication & Authorization
 
