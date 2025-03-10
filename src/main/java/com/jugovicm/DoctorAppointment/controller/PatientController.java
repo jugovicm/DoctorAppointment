@@ -93,5 +93,18 @@ public class PatientController {
         return ResponseEntity.ok(patientService.getAllPatients());
     }
 
+    @Operation(summary = "Get a patient by ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Returns patient details."),
+                    @ApiResponse(responseCode = "404", description = "Patient not found.")
+            })
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientDTO> getPatientById(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @PathVariable UUID id) {
+        PatientDTO patient = patientService.getPatientById(id);
+        return ResponseEntity.ok(patient);
+    }
+
 
 }

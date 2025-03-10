@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -40,17 +41,30 @@ public class DoctorController {
         return new ResponseEntity<>(doctorService.createDoctor(dto), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get a doctor by ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Returns doctor details."),
+                    @ApiResponse(responseCode = "404", description = "Doctor not found.")
+            })
+    @GetMapping("/{id}")
+    public ResponseEntity<DoctorDTO> getDoctorById(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @PathVariable UUID id) {
+        DoctorDTO doctor = doctorService.getDoctorById(id);
+        return ResponseEntity.ok(doctor);
+    }
+
     @Operation(summary = "Delete a doctor",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Doctor deleted successfully."),
                     @ApiResponse(responseCode = "404", description = "Doctor not found.")
             })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDoctor(
+    public ResponseEntity<Map<String, String>> deleteDoctor(
             @RequestHeader(value = "X-Username", required = true) String username,
             @PathVariable UUID id) {
         doctorService.deleteDoctor(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of("message", "Doctor deleted successfully.")); // ✅ Dodali smo poruku u JSON odgovoru
     }
 
     @Operation(summary = "Get all doctors",
@@ -76,17 +90,24 @@ public class DoctorController {
         DoctorDTO updatedDoctor = doctorService.updateDoctor(id, doctorDTO);
         return ResponseEntity.ok(updatedDoctor);
     }
+
+    //http://localhost:8080/v1/doctor/search?query=drmica
     @Operation(summary = "Search doctors",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Returns a list of doctors matching the query."),
-                    @ApiResponse(responseCode = "400", description = "Invalid query parameter.")
+                    @ApiResponse(responseCode = "404", description = "No doctors found for the given query.")
             })
-    //http://localhost:8080/v1/doctor/search?query=drmica
     @GetMapping("/search")
-    public ResponseEntity<List<DoctorDTO>> searchDoctors(
+    public ResponseEntity<Object> searchDoctors(
             @RequestHeader(value = "X-Username", required = true) String username,
             @RequestParam("query") String query) {
         List<DoctorDTO> doctors = doctorService.searchDoctors(query);
+
+        if (doctors.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No doctors found for query: " + query));
+        }
+
         return ResponseEntity.ok(doctors);
     }
     // Search doctor, POST method,

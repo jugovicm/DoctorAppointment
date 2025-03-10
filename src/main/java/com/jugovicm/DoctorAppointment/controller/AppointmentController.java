@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,11 +41,10 @@ public class AppointmentController {
             })
     @PostMapping
     public ResponseEntity<AppointmentResponseDTO> createAppointment(
-            @Parameter(description = "Required username header.")
             @RequestHeader(value = "X-Username", required = true) String username,
             @Valid @RequestBody AppointmentRequestDTO dto) {
 
-        AppointmentResponseDTO appointmentResponse = appointmentService.createAppointment(dto);
+        AppointmentResponseDTO appointmentResponse = appointmentService.createAppointment(dto, username);
         return new ResponseEntity<>(appointmentResponse, HttpStatus.CREATED);
     }
 
@@ -69,31 +69,19 @@ public class AppointmentController {
      * Cancel an appointment
      */
     @Operation(summary = "Cancel an appointment",
+            description = "Only the doctor who created the appointment can cancel it.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Appointment canceled successfully."),
                     @ApiResponse(responseCode = "403", description = "User not authorized to cancel this appointment."),
                     @ApiResponse(responseCode = "404", description = "Appointment not found.")
             })
     @PutMapping("/cancel/{appointmentId}")
-    public ResponseEntity<Object> cancelAppointment(
+    public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
             @RequestHeader(value = "X-Username", required = true) String username,
-            @PathVariable UUID appointmentId) {
+            @PathVariable UUID appointmentId) throws AccessDeniedException {
 
-        AppointmentResponseDTO appointment = appointmentService.getAppointment(appointmentId);
-
-        // Proveri da li je doktor koji pokušava da otkaže termin deo ovog termina
-        boolean isAuthorized = appointment.getDoctors().stream()
-                .anyMatch(doctor -> doctor.getUsername().equals(username));
-
-        if (!isAuthorized) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "You are not authorized to cancel this appointment."));
-        }
-
-        AppointmentResponseDTO cancelledAppointment = appointmentService.cancelAppointment(appointmentId);
-        return ResponseEntity.ok(cancelledAppointment);
+        return ResponseEntity.ok(appointmentService.cancelAppointment(appointmentId, username));
     }
-
 
     /**
      * Retrieve all appointments
@@ -159,60 +147,41 @@ public class AppointmentController {
     /**
      * Delete an appointment
      */
+
     @Operation(summary = "Delete an appointment",
+            description = "Only the doctor who created the appointment can delete it.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Appointment deleted successfully."),
+                    @ApiResponse(responseCode = "204", description = "Appointment deleted successfully."),
                     @ApiResponse(responseCode = "403", description = "User not authorized to delete this appointment."),
                     @ApiResponse(responseCode = "404", description = "Appointment not found.")
             })
     @DeleteMapping("/{appointmentId}")
-    public ResponseEntity<Object> deleteAppointment(
+    public ResponseEntity<Map<String, String>> deleteAppointment(
             @RequestHeader(value = "X-Username", required = true) String username,
-            @PathVariable UUID appointmentId) {
-
-        AppointmentResponseDTO appointment = appointmentService.getAppointment(appointmentId);
-
-        // Proveri da li je doktor koji pokušava da obriše termin deo ovog termina
-        boolean isAuthorized = appointment.getDoctors().stream()
-                .anyMatch(doctor -> doctor.getUsername().equals(username));
-
-        if (!isAuthorized) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "You are not authorized to delete this appointment."));
-        }
-
-        appointmentService.deleteAppointment(appointmentId);
+            @PathVariable UUID appointmentId) throws AccessDeniedException {
+        appointmentService.deleteAppointment(appointmentId, username);
         return ResponseEntity.ok(Map.of("message", "Appointment deleted successfully."));
     }
+
 
     /**
      * Update an appointment
      */
-    @Operation(summary = "Update an appointment",
+    @Operation(summary = "Update appointment date and time",
+            description = "Only the doctor who created the appointment can update the appointment, and only the date and time can be changed.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Appointment updated successfully."),
+                    @ApiResponse(responseCode = "400", description = "Invalid appointment time."),
                     @ApiResponse(responseCode = "403", description = "User not authorized to update this appointment."),
                     @ApiResponse(responseCode = "404", description = "Appointment not found.")
             })
     @PutMapping("/{appointmentId}")
-    public ResponseEntity<Object> updateAppointment(
+    public ResponseEntity<AppointmentResponseDTO> updateAppointment(
             @RequestHeader(value = "X-Username", required = true) String username,
             @PathVariable UUID appointmentId,
-            @Valid @RequestBody AppointmentRequestDTO dto) {
-
-        AppointmentResponseDTO appointment = appointmentService.getAppointment(appointmentId);
-
-        // Proveri da li je doktor koji pokušava da ažurira termin deo ovog termina
-        boolean isAuthorized = appointment.getDoctors().stream()
-                .anyMatch(doctor -> doctor.getUsername().equals(username));
-
-        if (!isAuthorized) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "You are not authorized to update this appointment."));
-        }
-
-        AppointmentResponseDTO updatedAppointment = appointmentService.updateAppointment(appointmentId, dto);
-        return ResponseEntity.ok(updatedAppointment);
+            @Valid @RequestBody AppointmentRequestDTO dto) throws AccessDeniedException {
+        return ResponseEntity.ok(appointmentService.updateAppointment(appointmentId, dto, username));
     }
+
 
 }

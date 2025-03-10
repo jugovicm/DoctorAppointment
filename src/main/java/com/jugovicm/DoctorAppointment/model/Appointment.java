@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Entity
 @Data
 @NoArgsConstructor
@@ -23,8 +24,6 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-
-    @Setter
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "doctor_appointments",
@@ -33,21 +32,21 @@ public class Appointment {
     )
     private List<Doctor> doctors = new ArrayList();
 
-    @Setter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id", nullable = false)
     @JsonIgnore
     private Patient patient;
 
-    @Setter
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "appointment_time", nullable = false)
     @JsonProperty("appointment_time")
     private LocalDateTime appointmentTime;
 
     //can be enum!
-    @Setter
     @Column(name = "status", nullable = false)
     @JsonProperty("status")
     private String status;  // Scheduled, Cancelled, etc.
+
+    @Column(name = "created_by", nullable = false, updatable = false)
+    private String createdBy; // Who is created appointment?
 }

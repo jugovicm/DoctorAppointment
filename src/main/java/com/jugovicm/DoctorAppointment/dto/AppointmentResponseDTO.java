@@ -15,4 +15,5 @@ public class AppointmentResponseDTO {
     private String status;
     private PatientDTO patient;
     private List<DoctorDTO> doctors;
+    private String createdBy;
 }

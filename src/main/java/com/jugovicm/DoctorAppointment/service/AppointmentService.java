@@ -4,6 +4,7 @@ import com.jugovicm.DoctorAppointment.dto.AppointmentRequestDTO;
 import com.jugovicm.DoctorAppointment.dto.AppointmentResponseDTO;
 import jakarta.validation.Valid;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +14,10 @@ public interface AppointmentService {
      * Creates a new appointment.
      *
      * @param appointment DTO containing appointment details.
+     * @param username Username of the doctor creating the appointment.
      * @return The created appointment as a DTO.
      */
-    AppointmentResponseDTO createAppointment(@Valid AppointmentRequestDTO appointment);
+    AppointmentResponseDTO createAppointment(@Valid AppointmentRequestDTO appointment, String username);
 
     /**
      * Retrieves an appointment by its ID.
@@ -52,23 +54,29 @@ public interface AppointmentService {
      * Cancels an appointment.
      *
      * @param appointmentId UUID of the appointment to cancel.
+     * @param username Username of the doctor requesting the cancellation.
      * @return The updated appointment as a DTO.
+     * @throws AccessDeniedException If the user is not authorized to cancel the appointment.
      */
-    AppointmentResponseDTO cancelAppointment(UUID appointmentId);
+    AppointmentResponseDTO cancelAppointment(UUID appointmentId, String username) throws AccessDeniedException;
+
     /**
-     * Delete an appointment.
+     * Deletes an appointment.
      *
      * @param appointmentId UUID of the appointment to delete.
+     * @param username Username of the doctor requesting the deletion.
+     * @throws AccessDeniedException If the user is not authorized to delete the appointment.
      */
-    void deleteAppointment(UUID appointmentId);
+    void deleteAppointment(UUID appointmentId, String username) throws AccessDeniedException;
+
     /**
-     * Update an appointment.
+     * Updates an appointment (only date and time).
      *
-     * @param appointmentId UUID of the appointment to cancel.
-     * @param dto DTO containing appointment details.                    
+     * @param appointmentId UUID of the appointment to update.
+     * @param dto DTO containing appointment details.
+     * @param username Username of the doctor requesting the update.
      * @return The updated appointment as a DTO.
+     * @throws AccessDeniedException If the user is not authorized to update the appointment.
      */
-    AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto);
-
-
+    AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto, String username) throws AccessDeniedException;
 }

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,34 +42,30 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public AppointmentResponseDTO createAppointment(@Valid AppointmentRequestDTO dto) {
+    public AppointmentResponseDTO createAppointment(@Valid AppointmentRequestDTO dto, String username) {
         log.info("Creating appointment for patient ID: {}", dto.getPatientId());
 
         Patient patient = patientRepository.findById(dto.getPatientId())
-                .orElseThrow(() -> {
-                    log.error("Patient not found: {}", dto.getPatientId());
-                    return new EntityNotFoundException("Patient not found");
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
 
         List<Doctor> doctors = doctorRepository.findAllById(dto.getDoctorIds());
         if (doctors.isEmpty() || doctors.size() != dto.getDoctorIds().size()) {
-            log.error("One or more doctors not found. Requested IDs: {}", dto.getDoctorIds());
             throw new EntityNotFoundException("One or more doctors not found.");
         }
-
-        log.info("Found {} doctors for appointment.", doctors.size());
 
         Appointment appointment = new Appointment();
         appointment.setAppointmentTime(dto.getAppointmentTime());
         appointment.setStatus(dto.getStatus());
         appointment.setPatient(patient);
         appointment.setDoctors(doctors);
+        appointment.setCreatedBy(username);
 
         appointment = appointmentRepository.save(appointment);
         log.info("Successfully created appointment with ID: {}", appointment.getId());
 
         return mapToResponseDTO(appointment);
     }
+
 
     @Override
     public AppointmentResponseDTO getAppointment(UUID appointmentId) {
@@ -101,9 +98,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public AppointmentResponseDTO cancelAppointment(UUID appointmentId) {
+    public AppointmentResponseDTO cancelAppointment(UUID appointmentId, String username) throws AccessDeniedException {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment with ID " + appointmentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+
+        // Provera autorizacije
+        if (!appointment.getCreatedBy().equals(username)) {
+            throw new AccessDeniedException("You are not authorized to cancel this appointment.");
+        }
 
         appointment.setStatus("Cancelled");
         Appointment updatedAppointment = appointmentRepository.save(appointment);
@@ -113,11 +115,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
+
     private AppointmentResponseDTO mapToResponseDTO(Appointment appointment) {
         AppointmentResponseDTO dto = new AppointmentResponseDTO();
         dto.setId(appointment.getId());
         dto.setAppointmentTime(appointment.getAppointmentTime());
         dto.setStatus(appointment.getStatus());
+        dto.setCreatedBy(appointment.getCreatedBy());
 
         // Map patient in PatientDTO
         if (appointment.getPatient() != null) {
@@ -153,46 +157,41 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Transactional
     @Override
-    public void deleteAppointment(UUID appointmentId) {
+    public void deleteAppointment(UUID appointmentId, String username) throws AccessDeniedException {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment with ID " + appointmentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
-        // Uklanjamo doktore iz termina pre brisanja kako bismo izbegli referencijalne probleme
-        appointment.getDoctors().forEach(doctor -> doctor.getAppointments().remove(appointment));
+        // Provera autorizacije
+        if (!appointment.getCreatedBy().equals(username)) {
+            throw new AccessDeniedException("You are not authorized to delete this appointment.");
+        }
 
-        // Brišemo termin iz baze
         appointmentRepository.delete(appointment);
         log.info("Appointment with ID {} deleted successfully.", appointmentId);
     }
 
+
     @Transactional
     @Override
-    public AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto) {
+    public AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto, String username) throws AccessDeniedException {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new EntityNotFoundException("Appointment with ID " + appointmentId + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
-        // Ažuriranje podataka
-        appointment.setAppointmentTime(dto.getAppointmentTime());
-        appointment.setStatus(dto.getStatus());
-
-        // Postavljamo novog pacijenta ako je promenjen
-        Patient patient = patientRepository.findById(dto.getPatientId())
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
-        appointment.setPatient(patient);
-
-        // Postavljamo nove doktore ako su promenjeni
-        List<Doctor> doctors = doctorRepository.findAllById(dto.getDoctorIds());
-        if (doctors.isEmpty() || doctors.size() != dto.getDoctorIds().size()) {
-            throw new EntityNotFoundException("One or more doctors not found.");
+        // Provera autorizacije
+        if (!appointment.getCreatedBy().equals(username)) {
+            throw new AccessDeniedException("You are not authorized to update this appointment.");
         }
-        appointment.setDoctors(doctors);
+
+        // Ažuriranje samo datuma i vremena
+        if (dto.getAppointmentTime() == null) {
+            throw new IllegalArgumentException("Appointment time must be provided for update.");
+        }
+
+        appointment.setAppointmentTime(dto.getAppointmentTime());
 
         Appointment updatedAppointment = appointmentRepository.save(appointment);
         log.info("Appointment with ID {} updated successfully.", appointmentId);
 
         return mapToResponseDTO(updatedAppointment);
     }
-
-
-
 }
