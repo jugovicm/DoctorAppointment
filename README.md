@@ -105,6 +105,8 @@ http://localhost:8080
 - Every request **must** include the `X-Username` header.
 - **Search for doctors** uses `GET /v1/doctor/search?query=XXXX`
 - **Search for patients** uses `POST /v1/patient/search` with a JSON body.
+- Only the creator of an appointment can modify or cancel it.
+- Attempting to update or delete an appointment without permission returns a 403 Forbidden error.
 
 For detailed API request examples, see API Examples.
 
@@ -112,7 +114,7 @@ For detailed API request examples, see API Examples.
 
 No real authentication is required.
 API uses X-Username header to verify doctor identity.
-A doctor can only cancel their own scheduled appointments.
+Only the doctor who created the appointment can cancel, update, or delete it.
 If X-Username is missing, API returns 401 Unauthorized.
 
 📜 License
