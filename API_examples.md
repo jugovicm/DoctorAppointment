@@ -143,7 +143,10 @@ X-Username: drkovac
 ```
 ```json
 {
-  "appointmentTime": "2024-03-20T14:30:00"
+  "appointmentTime": "2024-04-15T10:00:00",
+  "status": "Scheduled",
+  "patientId": "de968c17-54f7-4152-af8b-f6479b962a80",
+  "doctorIds": ["18ed2e30-e7d2-4ed4-a4a5-60b4630dadd4"]
 }
 ```
 ### 📌 Delete an Appointment
