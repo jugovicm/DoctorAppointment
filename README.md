@@ -56,7 +56,55 @@ mvn spring-boot:run
 The API will be available at:
 http://localhost:8080
 
-4️⃣ ## 📌 API Examples
+4️⃣ ## 📌 API Endpoint
+
+# API Endpoints Overview
+
+## 🏥 Doctors API
+
+| Method | Endpoint | Description |
+|--------|--------------------------|------------------------------|
+| **POST** | `/v1/doctor` | Create a new doctor |
+| **GET** | `/v1/doctor` | Retrieve all doctors |
+| **GET** | `/v1/doctor/{id}` | Retrieve a doctor by ID |
+| **PUT** | `/v1/doctor/{id}` | Update a doctor's information |
+| **DELETE** | `/v1/doctor/{id}` | Delete a doctor |
+| **GET** | `/v1/doctor/search?query=XXXX` | Search for doctors |
+
+---
+
+## 👨‍⚕️ Patients API
+
+| Method | Endpoint | Description |
+|--------|--------------------------|------------------------------|
+| **POST** | `/v1/patient` | Create a new patient |
+| **GET** | `/v1/patient` | Retrieve all patients |
+| **GET** | `/v1/patient/{id}` | Retrieve a patient by ID |
+| **PUT** | `/v1/patient/{id}` | Update a patient's information |
+| **DELETE** | `/v1/patient/{id}` | Delete a patient |
+| **POST** | `/v1/patient/search` | Search for patients (JSON body) |
+
+---
+
+## 📅 Appointments API
+
+| Method | Endpoint | Description |
+|--------|--------------------------------|--------------------------------|
+| **POST** | `/v1/appointment` | Create a new appointment |
+| **GET** | `/v1/appointment` | Retrieve all appointments |
+| **GET** | `/v1/appointment/{id}` | Retrieve an appointment by ID |
+| **PUT** | `/v1/appointment/{id}` | Update an appointment (change time) |
+| **DELETE** | `/v1/appointment/{id}` | Delete an appointment |
+| **GET** | `/v1/appointment/doctor/{id}` | Retrieve all appointments for a doctor |
+| **GET** | `/v1/appointment/patient/{id}` | Retrieve all appointments for a patient |
+| **PUT** | `/v1/appointment/cancel/{id}` | Cancel an appointment |
+
+---
+
+✅ **Notes:**
+- Every request **must** include the `X-Username` header.
+- **Search for doctors** uses `GET /v1/doctor/search?query=XXXX`
+- **Search for patients** uses `POST /v1/patient/search` with a JSON body.
 
 For detailed API request examples, see API Examples.
 
