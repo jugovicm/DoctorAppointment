@@ -56,11 +56,9 @@ mvn spring-boot:run
 The API will be available at:
 http://localhost:8080
 
-4️⃣ ## 📌 API Endpoint
+## 📌 API Endpoint Overview
 
-# API Endpoints Overview
-
-## 🏥 Doctors API
+### 🏥 Doctors API
 
 | Method | Endpoint | Description |
 |--------|--------------------------|------------------------------|
@@ -73,7 +71,7 @@ http://localhost:8080
 
 ---
 
-## 👨‍⚕️ Patients API
+### 👨‍⚕️ Patients API
 
 | Method | Endpoint | Description |
 |--------|--------------------------|------------------------------|
@@ -86,7 +84,7 @@ http://localhost:8080
 
 ---
 
-## 📅 Appointments API
+### 📅 Appointments API
 
 | Method | Endpoint | Description |
 |--------|--------------------------------|--------------------------------|
@@ -116,6 +114,27 @@ No real authentication is required.
 API uses X-Username header to verify doctor identity.
 Only the doctor who created the appointment can cancel, update, or delete it.
 If X-Username is missing, API returns 401 Unauthorized.
+
+## 📌 Performance Optimizations
+The application is optimized for handling large amounts of data (millions of patients and appointments). 
+
+### ✅ Indexing for Faster Queries
+Indexes have been manually added in PostgreSQL using **pgAdmin** to optimize database performance:
+
+| Table        | Indexed Column         | Purpose |
+|-------------|----------------------|---------|
+| `patient`   | `last_name`          | Faster patient search by last name |
+| `appointment` | `appointment_time` | Faster search for appointments by time |
+| `doctor_appointments` | `doctor_id` | Faster lookup of appointments by doctor |
+| `appointment` | `patient_id` | Faster lookup of appointments by patient |
+| `appointment` | `created_by` | Faster filtering by the user who created the appointment |
+
+Indexes improve query execution times significantly when working with large datasets.
+
+### ✅ Additional Performance Enhancements (Planned)
+- **Table Partitioning**: Splitting large tables into smaller partitions (e.g., by year) for better performance.
+- **Pagination**: API responses return data in smaller pages to improve efficiency.
+- **Caching with Redis**: Caching frequently accessed data (e.g., patients and appointments) to reduce database load.
 
 📜 License
 
