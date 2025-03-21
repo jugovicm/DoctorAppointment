@@ -29,7 +29,7 @@ public class Doctor {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @ManyToMany(mappedBy = "doctors", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "doctors", cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JsonIgnore
     @ToString.Exclude
     private List<Appointment> appointments = new ArrayList<>();

@@ -24,7 +24,7 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "doctor_appointments",
             joinColumns = @JoinColumn(name = "appointment_id"),
@@ -32,19 +32,17 @@ public class Appointment {
     )
     private List<Doctor> doctors = new ArrayList();
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     @JsonIgnore
     private Patient patient;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "appointment_time", nullable = false)
-    @JsonProperty("appointment_time")
     private LocalDateTime appointmentTime;
 
     //can be enum!
     @Column(name = "status", nullable = false)
-    @JsonProperty("status")
     private String status;  // Scheduled, Cancelled, etc.
 
     @Column(name = "created_by", nullable = false, updatable = false)
