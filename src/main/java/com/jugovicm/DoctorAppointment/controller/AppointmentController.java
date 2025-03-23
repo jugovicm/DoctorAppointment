@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -183,5 +186,25 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.updateAppointment(appointmentId, dto, username));
     }
 
+    @GetMapping("/paged")
+    public ResponseEntity<Page<AppointmentResponseDTO>> getAllAppointmentsPaged(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(appointmentService.getAllAppointments(pageable));
+    }
+
+    @GetMapping("/doctor/{doctorId}/paged")
+    public ResponseEntity<Page<AppointmentResponseDTO>> getAppointmentsByDoctorPaged(
+            @RequestHeader(value = "X-Username", required = true) String username,
+            @PathVariable UUID doctorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(appointmentService.getAppointmentsByDoctor(doctorId, pageable));
+    }
 
 }

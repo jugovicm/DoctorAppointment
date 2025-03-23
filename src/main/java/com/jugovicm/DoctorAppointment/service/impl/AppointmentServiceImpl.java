@@ -17,6 +17,8 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
@@ -194,4 +196,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return mapToResponseDTO(updatedAppointment);
     }
+
+    @Override
+    public Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable) {
+        return appointmentRepository.findAll(pageable)
+                .map(this::mapToResponseDTO);
+    }
+
+    @Override
+    public Page<AppointmentResponseDTO> getAppointmentsByDoctor(UUID doctorId, Pageable pageable) {
+        return appointmentRepository.findByDoctors_Id(doctorId, pageable)
+                .map(this::mapToResponseDTO);
+    }
+
 }

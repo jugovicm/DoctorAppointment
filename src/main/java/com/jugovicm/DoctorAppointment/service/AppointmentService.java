@@ -3,6 +3,8 @@ package com.jugovicm.DoctorAppointment.service;
 import com.jugovicm.DoctorAppointment.dto.AppointmentRequestDTO;
 import com.jugovicm.DoctorAppointment.dto.AppointmentResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -79,4 +81,8 @@ public interface AppointmentService {
      * @throws AccessDeniedException If the user is not authorized to update the appointment.
      */
     AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto, String username) throws AccessDeniedException;
+
+    Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable);
+
+    Page<AppointmentResponseDTO> getAppointmentsByDoctor(UUID doctorId, Pageable pageable);
 }
