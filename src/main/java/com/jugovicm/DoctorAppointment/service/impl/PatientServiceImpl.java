@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -129,4 +131,19 @@ public class PatientServiceImpl implements PatientService {
 
         return mapToDTO(updatedPatient);
     }
+
+    @Override
+    public Page<PatientDTO> getAllPatients(Pageable pageable) {
+        return patientRepository.findAll(pageable)
+                .map(patient -> {
+                    PatientDTO dto = new PatientDTO();
+                    dto.setId(patient.getId());
+                    dto.setFirstName(patient.getFirstName());
+                    dto.setLastName(patient.getLastName());
+                    dto.setMiddleName(patient.getMiddleName());
+                    dto.setDateOfBirth(patient.getDateOfBirth());
+                    return dto;
+                });
+    }
+
 }

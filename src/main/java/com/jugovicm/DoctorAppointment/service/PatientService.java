@@ -1,6 +1,8 @@
 package com.jugovicm.DoctorAppointment.service;
 
 import com.jugovicm.DoctorAppointment.dto.PatientDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -54,4 +56,7 @@ public interface PatientService {
      * @return The updated patient as a DTO.
      */
     PatientDTO updatePatient(UUID id, PatientDTO patientDTO);
+
+    Page<PatientDTO> getAllPatients(Pageable pageable);
+
 }
