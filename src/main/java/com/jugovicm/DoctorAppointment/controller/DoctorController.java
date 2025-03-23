@@ -98,15 +98,10 @@ public class DoctorController {
                     @ApiResponse(responseCode = "404", description = "No doctors found for the given query.")
             })
     @GetMapping("/search")
-    public ResponseEntity<Object> searchDoctors(
+    public ResponseEntity<List<DoctorDTO>> searchDoctors(
             @RequestHeader(value = "X-Username", required = true) String username,
             @RequestParam("query") String query) {
         List<DoctorDTO> doctors = doctorService.searchDoctors(query);
-
-        if (doctors.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No doctors found for query: " + query));
-        }
 
         return ResponseEntity.ok(doctors);
     }

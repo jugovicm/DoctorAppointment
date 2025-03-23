@@ -1,5 +1,6 @@
 package com.jugovicm.DoctorAppointment.controller;
 
+import com.jugovicm.DoctorAppointment.dto.DoctorDTO;
 import com.jugovicm.DoctorAppointment.dto.PatientDTO;
 import com.jugovicm.DoctorAppointment.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,17 +55,12 @@ public class PatientController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<Object> searchPatients(
+    public ResponseEntity<List<PatientDTO>> searchPatients(
             @RequestHeader(value = "X-Username", required = true) String username,
             @RequestBody Map<String, String> searchParams) {
 
         String searchTerm = searchParams.get("query");
         List<PatientDTO> patients = patientService.searchPatients(searchTerm);
-
-        if (patients.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No patients found for query: " + searchTerm));
-        }
 
         return ResponseEntity.ok(patients);
     }
