@@ -56,7 +56,12 @@ public interface PatientService {
      * @return The updated patient as a DTO.
      */
     PatientDTO updatePatient(UUID id, PatientDTO patientDTO);
-
+    /**
+     * Retrieves a paginated list of all patients.
+     *
+     * @param pageable Pagination and sorting information.
+     * @return A paginated page of patients as DTOs.
+     */
     Page<PatientDTO> getAllPatients(Pageable pageable);
 
 }

@@ -110,16 +110,11 @@ public class AppointmentController {
                     @ApiResponse(responseCode = "404", description = "Doctor not found or no appointments found.")
             })
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<Object> getAppointmentsByDoctor(
+    public ResponseEntity<List<AppointmentResponseDTO>> getAppointmentsByDoctor(
             @RequestHeader(value = "X-Username", required = true) String username,
             @PathVariable UUID doctorId) {
 
         List<AppointmentResponseDTO> appointments = appointmentService.getAppointmentsByDoctor(doctorId);
-
-        if (appointments.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No appointments found for doctor ID: " + doctorId));
-        }
 
         return ResponseEntity.ok(appointments);
     }

@@ -82,7 +82,20 @@ public interface AppointmentService {
      */
     AppointmentResponseDTO updateAppointment(UUID appointmentId, AppointmentRequestDTO dto, String username) throws AccessDeniedException;
 
+    /**
+     * Retrieves a paginated list of all appointments.
+     *
+     * @param pageable Pagination and sorting information.
+     * @return A paginated page of appointments as DTOs.
+     */
     Page<AppointmentResponseDTO> getAllAppointments(Pageable pageable);
 
+    /**
+     * Retrieves a paginated list of appointments for a specific doctor.
+     *
+     * @param doctorId UUID of the doctor.
+     * @param pageable Pagination and sorting information.
+     * @return A paginated page of appointments for the specified doctor.
+     */
     Page<AppointmentResponseDTO> getAppointmentsByDoctor(UUID doctorId, Pageable pageable);
 }
