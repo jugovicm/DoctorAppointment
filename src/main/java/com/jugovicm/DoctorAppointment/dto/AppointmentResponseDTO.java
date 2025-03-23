@@ -1,5 +1,6 @@
 package com.jugovicm.DoctorAppointment.dto;
 
+import com.jugovicm.DoctorAppointment.model.AppointmentStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class AppointmentResponseDTO {
     private UUID id;
     private LocalDateTime appointmentTime;
-    private String status;
+    private AppointmentStatus status;
     private PatientDTO patient;
     private List<DoctorDTO> doctors;
     private String createdBy;

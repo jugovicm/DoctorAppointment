@@ -41,9 +41,9 @@ public class Appointment {
     @Column(name = "appointment_time", nullable = false)
     private LocalDateTime appointmentTime;
 
-    //can be enum!
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;  // Scheduled, Cancelled, etc.
+    private AppointmentStatus status;
 
     @Column(name = "created_by", nullable = false, updatable = false)
     private String createdBy; // Who is created appointment?

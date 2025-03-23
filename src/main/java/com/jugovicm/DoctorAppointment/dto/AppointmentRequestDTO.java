@@ -1,5 +1,6 @@
 package com.jugovicm.DoctorAppointment.dto;
 
+import com.jugovicm.DoctorAppointment.model.AppointmentStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ public class AppointmentRequestDTO {
     private LocalDateTime appointmentTime;
 
     @NotNull(message = "Status is required.")
-    private String status;
+    private AppointmentStatus status;
 
     @NotNull(message = "Patient ID is required.")
     private UUID patientId;

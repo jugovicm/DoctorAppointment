@@ -5,6 +5,7 @@ import com.jugovicm.DoctorAppointment.dto.AppointmentResponseDTO;
 import com.jugovicm.DoctorAppointment.dto.DoctorDTO;
 import com.jugovicm.DoctorAppointment.dto.PatientDTO;
 import com.jugovicm.DoctorAppointment.model.Appointment;
+import com.jugovicm.DoctorAppointment.model.AppointmentStatus;
 import com.jugovicm.DoctorAppointment.model.Doctor;
 import com.jugovicm.DoctorAppointment.model.Patient;
 import com.jugovicm.DoctorAppointment.repository.AppointmentRepository;
@@ -109,7 +110,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AccessDeniedException("You are not authorized to cancel this appointment.");
         }
 
-        appointment.setStatus("Cancelled");
+        appointment.setStatus(AppointmentStatus.valueOf("CANCELLED"));
         Appointment updatedAppointment = appointmentRepository.save(appointment);
         log.info("Appointment with ID {} has been cancelled.", appointmentId);
 
